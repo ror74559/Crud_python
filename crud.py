@@ -1,11 +1,7 @@
-import pyodbc
-
-server = 'RAF_RAF_EMM\SQLEXPRESS'
-database ='crudpy'
-username_pass = 'Trusted_Connection=yes'
+import sqlite3
 
 #conexão
-conexao = pyodbc.connect('DRIVER={ODBC Driver 17 for SQL Server};SERVER='+server+';DATABASE='+database+';'+username_pass)
+conexao = sqlite3.connect('registros.bd')
 
 #gerenciador de comandos do banco de dados
 cursor = conexao.cursor()
@@ -17,24 +13,28 @@ def imprimir_dados(lista):
 		print(f'id:{registro[0]}')
 		print(f'nome:{registro[1]}')
 		print(f'apelido:{registro[2]}')
-		print(f'data de nascimento: {registro[3].day}/{registro[3].month}/{registro[3].year}')
+		print(f'data de nascimento: {registro[3]}')
+		print('--------------------------------')
+		
 
 def create(nome,apelido,data_nasc):
 	string_sql = f'''
 
-		insert into pessoas(nome,apelido,data_nac)
+		INSERT INTO usuarios(nome,apelido,data_nasc)
 
-		values('{nome}','{apelido}','{data_nasc}');
+		VALUES('{nome}','{apelido}','{data_nasc}');
 
 		'''
 	cursor.execute(string_sql)
 
-	cursor.commit()
+	conexao.commit()
+
+	
 
 def retrieve():
 	string_sql = '''
 
-		select * from pessoas;
+		SELECT * FROM usuarios;
 
 	'''
 
@@ -47,9 +47,9 @@ def retrieve():
 def retrieve_id(id):
 	string_sql = f'''
 
-		select * from pessoas
+		SELECT * FROM usuarios
 
-		where id ={id};
+		WHERE id ={id};
 
 	'''
 
@@ -59,7 +59,7 @@ def retrieve_id(id):
 
 def update(id, nome = '',apelido= '',data_nasc = ''):
 
-	lista ={'nome':nome, 'apelido':apelido, 'data_nac':data_nasc}
+	lista ={'nome':nome, 'apelido':apelido, 'data_nasc':data_nasc}
 
 	print('registro antigo:')
 
@@ -75,19 +75,19 @@ def update(id, nome = '',apelido= '',data_nasc = ''):
 
 			string_sql = f'''
 
-				update pessoas
+				UPDATE usuarios
 
-				set {registro} = '{lista[registro]}'
+				SET {registro} = '{lista[registro]}'
 
-				where id ={id};
+				WHERE id ={id};
 
 			'''
 			cursor.execute(string_sql)
-			cursor.commit()
+			conexao.commit()
 
 	retrieve_id(id)
 
-	#imprimir_dados(cursor.fetchall())
+	imprimir_dados(cursor.fetchall())
 
 
 def delete(id):
@@ -97,17 +97,19 @@ def delete(id):
 	confirmacao = str(input('Tem certeza que deseja excluir este registro? (s/n)')).lower()
 	if confirmacao == 's':
 		string_sql = f'''
-					delete from pessoas
-					where id = {id}
+					DELETE FROM usuarios
+					WHERE id = {id};
 
 			'''
 		cursor.execute(string_sql)
-		cursor.commit()
+		conexao.commit()
 		print('Registro deletado!')
 		
 	else:
 		print('Deleção não foi efetuada.')
-delete(9)
+
+
+retrieve()
 	
 
 

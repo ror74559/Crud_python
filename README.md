@@ -1,2 +1,2 @@
 # Crud_python
-Crud em python Banco de dados SQL
+Crud em um banco da dados sqlite3
